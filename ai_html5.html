@@ -45,11 +45,16 @@
 				// generate the map
 				// // double array
 				// // enum for road tile, consumer tile, grass tile, tree tile, dealership tile
+				// // all dealers have to have sum total of consumers distances be equal
 			};
 		
 			$(document).ready(function() {
 				var cavasWidth = 500;
 				var canvasHeight = 500;
+				
+				var numDealershipsPerPlayer = 3;
+				var numPlayers = 2;
+				var numConsumers = numPlayers * 10; 
 				
 				var canvas = $("#boardCanvas");
 				var context = canvas.get(0).getContext("2d");
