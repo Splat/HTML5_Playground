@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+        <title>AI Competition</title>
+        <meta charset="utf-8">
+ 
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		
+		<script type="text/javascript">
+			var drawVerticalGridLines = function(context, height, width) {
+				for (i = 0; i <= width; i++) {
+					if (i % 20 === 0) {
+						context.strokeStyle = "rgb(10, 10, 10)";
+						context.lineWidth = .25;
+						context.beginPath();
+						context.moveTo(i,0);
+						context.lineTo(i,height);
+						context.closePath();
+						context.stroke();
+					}
+				}
+			};	
+
+			var drawHorizontalGridLines = function(context, height, width) {
+				for (i = 0; i <= height; i++) {
+					if (i % 20 === 0) {
+						context.strokeStyle = "rgb(50, 50, 50)";
+						context.lineWidth = .25;
+						context.beginPath();
+						context.moveTo(0,i);
+						context.lineTo(width,i);
+						context.closePath();
+						context.stroke();
+					}
+				}
+			};		
+			
+			// Clear the entire canvas being passed in			
+			var wipe = function(canvas, context) {;
+				context.clearRect(0, 0, canvas.width(), canvas.height());
+			};
+			
+			var generateMap = function(canvas, context) {
+				// generate the map
+				// // double array
+				// // enum for road tile, consumer tile, grass tile, tree tile, dealership tile
+			};
+		
+			$(document).ready(function() {
+				var cavasWidth = 500;
+				var canvasHeight = 500;
+				
+				var canvas = $("#boardCanvas");
+				var context = canvas.get(0).getContext("2d");
+				
+				drawVerticalGridLines(context, canvasHeight, cavasWidth);
+				drawHorizontalGridLines(context, canvasHeight, cavasWidth);
+			});
+		</script>
+    </head>
+	
+	<body>
+		<canvas id="boardCanvas" width="500" height="500">
+		    <!-- Get a real broswer -->
+		</canvas>
+	</body>
+	
+</html>
