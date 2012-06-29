@@ -8,9 +8,15 @@
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 		
 		<script type="text/javascript">
+			
+			var drawGrid = function(context, height, width) {
+				drawVerticalGridLines(context, height, width);
+				drawHorizontalGridLines(context, height, width);
+			};
+			
 			var drawVerticalGridLines = function(context, height, width) {
 				for (i = 0; i <= width; i++) {
-					if (i % 20 === 0) {
+					if (i % 16 === 0) {
 						context.strokeStyle = "rgb(10, 10, 10)";
 						context.lineWidth = .25;
 						context.beginPath();
@@ -24,7 +30,7 @@
 
 			var drawHorizontalGridLines = function(context, height, width) {
 				for (i = 0; i <= height; i++) {
-					if (i % 20 === 0) {
+					if (i % 16 === 0) {
 						context.strokeStyle = "rgb(50, 50, 50)";
 						context.lineWidth = .25;
 						context.beginPath();
@@ -41,16 +47,111 @@
 				context.clearRect(0, 0, canvas.width(), canvas.height());
 			};
 			
-			var generateMap = function(canvas, context) {
-				// generate the map
-				// // double array
-				// // enum for road tile, consumer tile, grass tile, tree tile, dealership tile
-				// // all dealers have to have sum total of consumers distances be equal
+			// possibly also store the image in the enum
+			var TerrainEnum = {
+				GROUND	: { value: 0, name: "Ground", code: "G" },
+				FORREST	: { value: 1, name: "Forrest", code: "Fo" },
+				FLOWER	: { value: 2, name: "Flower", code: "Fl" },
+				CONSUMER: { value: 3, name: "Consumer", code: "C" },
+				DEALER	: { value: 4, name: "Dealer", code: "D" },
+				SPORTCAR: { value: 5, name: "SportCar", code: "Sc" },
+				SEDAN	: { value: 6, name: "Sedan", code: "Sd" },
+				TRUCK	: { value: 7, name: "Truck", code: "T" },
+				ROAD	: { value: 8, name: "Road", code: "R" },
+			};
+			
+			function loadImages(sources, callback) {
+				var images = {};
+				var loadedImages = 0;
+				var numImages = 0;
+				// get num of sources
+				for(var src in sources) {
+					numImages++;
+				}
+				
+				for(var src in sources) {
+					images[src] = new Image();
+					images[src].onload = function() {
+						if(++loadedImages >= numImages) {
+							callback(images);
+						}
+					};
+					images[src].src = sources[src];
+				}
+			}
+			
+			var generateMap = function(context, maxWidth, maxHeight) {
+				// divided by 20 since each block is 20 pixels
+				var maxRows = maxHeight / 16;
+				var maxCols = maxWidth / 16;
+				
+				
+				var terrainMap = new Array(maxRows);
+				
+				for (i = 0; i < maxRows; i++) {
+					terrainMap[i] = new Array(maxCols);
+				}
+				
+				var imgSources = { 
+					ground	: 'ground.png', 
+					garden	: 'garden.png', 
+					forrest	: 'forrest.png' 
+				};
+				
+				loadImages(imgSources, function(images) {		
+					console.log("in callback");
+					// first initialize everything to ground nodes
+					for (i = 0; i < maxRows; i++) {
+						//console.log("Row: %d", i);
+						for (j = 0; j < maxCols; j++) {
+							//console.log("Col: %d", j);
+							terrainMap[i][j] = TerrainEnum.GROUND;
+							
+							// multiplied by 16 to get the corresponding x,y starting spots
+							var xCoord = i*16;
+							var yCoord = j*16;
+							context.drawImage(images.ground, xCoord, yCoord);
+						}
+					}
+					
+					// generate the forrest tiles... 
+					// needs to be some kind of pattern within the initilization of ground tiles.
+					var maxForrest = Math.floor((maxRows * maxCols) / 2);
+					for (i = 0; i < maxForrest; i++) {
+						var randomX = Math.floor(Math.random()*maxCols);
+						var randomY = Math.floor(Math.random()*maxRows);
+						terrainMap[randomX][randomY] = TerrainEnum.FORREST;
+						console.log("Forrest at: %d, %d", randomX, randomY);
+						
+						var xCoord = randomX*16;
+						var yCoord = randomY*16;
+						context.drawImage(images.forrest, xCoord, yCoord);
+					}
+					
+					// generate the forrest tiles... 
+					// needs to be some kind of pattern within the initilization of ground tiles.
+					var maxGarden = Math.floor((maxRows * maxCols) / 4);
+					for (i = 0; i < maxGarden; i++) {
+						var randomX = Math.floor(Math.random()*maxCols);
+						var randomY = Math.floor(Math.random()*maxRows);
+						terrainMap[randomX][randomY] = TerrainEnum.GARDEN;
+						console.log("Garden at: %d, %d", randomX, randomY);
+						
+						var xCoord = randomX*16;
+						var yCoord = randomY*16;
+						context.drawImage(images.garden, xCoord, yCoord);
+					}					
+					
+					// draw the grid on top of everything
+					drawGrid(context, maxHeight, maxWidth);
+				});
+				
+				return terrainMap;
 			};
 		
 			$(document).ready(function() {
-				var cavasWidth = 500;
-				var canvasHeight = 500;
+				var cavasWidth = 16 * 25;
+				var canvasHeight = 16 * 25;
 				
 				var numDealershipsPerPlayer = 3;
 				var numPlayers = 2;
@@ -59,8 +160,7 @@
 				var canvas = $("#boardCanvas");
 				var context = canvas.get(0).getContext("2d");
 				
-				drawVerticalGridLines(context, canvasHeight, cavasWidth);
-				drawHorizontalGridLines(context, canvasHeight, cavasWidth);
+				var terrainMap = generateMap(context, cavasWidth, canvasHeight);
 			});
 		</script>
     </head>
