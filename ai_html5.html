@@ -9,42 +9,42 @@
 		
 		<script type="text/javascript">
 			
-			var drawGrid = function(context, height, width) {
-				drawVerticalGridLines(context, height, width);
-				drawHorizontalGridLines(context, height, width);
+			var drawGrid = function(game) {
+				drawVerticalGridLines(game);
+				drawHorizontalGridLines(game);
 			};
 			
-			var drawVerticalGridLines = function(context, height, width) {
-				for (i = 0; i <= width; i++) {
+			var drawVerticalGridLines = function(game) {
+				for (i = 0; i <= game.canvasHeight; i++) {
 					if (i % 16 === 0) {
-						context.strokeStyle = "rgb(10, 10, 10)";
-						context.lineWidth = .25;
-						context.beginPath();
-						context.moveTo(i,0);
-						context.lineTo(i,height);
-						context.closePath();
-						context.stroke();
+						game.context.strokeStyle = "rgb(10, 10, 10)";
+						game.context.lineWidth = .25;
+						game.context.beginPath();
+						game.context.moveTo(i,0);
+						game.context.lineTo(i,game.canvasHeight);
+						game.context.closePath();
+						game.context.stroke();
 					}
 				}
 			};	
 
-			var drawHorizontalGridLines = function(context, height, width) {
-				for (i = 0; i <= height; i++) {
+			var drawHorizontalGridLines = function(game) {
+				for (i = 0; i <= game.canvasWidth; i++) {
 					if (i % 16 === 0) {
-						context.strokeStyle = "rgb(50, 50, 50)";
-						context.lineWidth = .25;
-						context.beginPath();
-						context.moveTo(0,i);
-						context.lineTo(width,i);
-						context.closePath();
-						context.stroke();
+						game.context.strokeStyle = "rgb(50, 50, 50)";
+						game.context.lineWidth = .25;
+						game.context.beginPath();
+						game.context.moveTo(0,i);
+						game.context.lineTo(game.canvasWidth,i);
+						game.context.closePath();
+						game.context.stroke();
 					}
 				}
 			};		
 			
 			// Clear the entire canvas being passed in			
-			var wipe = function(canvas, context) {;
-				context.clearRect(0, 0, canvas.width(), canvas.height());
+			var wipe = function(game) {;
+				game.context.clearRect(0, 0, game.canvas.width(), game.canvas.height());
 			};
 			
 			// possibly also store the image in the enum
@@ -80,10 +80,10 @@
 				}
 			}
 			
-			var generateMap = function(context, maxWidth, maxHeight) {
+			var generateMap = function(game) {
 				// divided by 20 since each block is 20 pixels
-				var maxRows = maxHeight / 16;
-				var maxCols = maxWidth / 16;
+				var maxRows = game.canvasWidth / 16;
+				var maxCols = game.canvasHeight / 16;
 				
 				
 				var terrainMap = new Array(maxRows);
@@ -110,7 +110,7 @@
 							// multiplied by 16 to get the corresponding x,y starting spots
 							var xCoord = i*16;
 							var yCoord = j*16;
-							context.drawImage(images.ground, xCoord, yCoord);
+							game.context.drawImage(images.ground, xCoord, yCoord);
 						}
 					}
 					
@@ -125,7 +125,7 @@
 						
 						var xCoord = randomX*16;
 						var yCoord = randomY*16;
-						context.drawImage(images.forrest, xCoord, yCoord);
+						game.context.drawImage(images.forrest, xCoord, yCoord);
 					}
 					
 					// generate the forrest tiles... 
@@ -139,28 +139,44 @@
 						
 						var xCoord = randomX*16;
 						var yCoord = randomY*16;
-						context.drawImage(images.garden, xCoord, yCoord);
-					}					
+						game.context.drawImage(images.garden, xCoord, yCoord);
+					}
+
+					terrainMap = generateDealers(game, terrainMap);
 					
 					// draw the grid on top of everything
-					drawGrid(context, maxHeight, maxWidth);
+					drawGrid(game);
 				});
 				
 				return terrainMap;
 			};
+			
+			var generateDealers = function (game, numberOfPlayers) {
+			
+			};
+			
+			var Game = function(canvas, context, canvasWidth, canvasHeight) {
+				this.canvas = canvas;
+				this.context = context;
+				this.canvasWidth = canvasWidth;
+				this.canvasHeight = canvasHeight;
+				
+				// some constants for early testing
+				this.numDealershipsPerPlayer = 3;
+				this.numPlayers = 2;
+				this.numConsumers = this.numPlayers * 10;
+			};
 		
 			$(document).ready(function() {
-				var cavasWidth = 16 * 25;
-				var canvasHeight = 16 * 25;
-				
-				var numDealershipsPerPlayer = 3;
-				var numPlayers = 2;
-				var numConsumers = numPlayers * 10; 
+				var canvasWidth = 16 * 25;
+				var canvasHeight = 16 * 25; 
 				
 				var canvas = $("#boardCanvas");
 				var context = canvas.get(0).getContext("2d");
 				
-				var terrainMap = generateMap(context, cavasWidth, canvasHeight);
+				var game = new Game(canvas, context, canvasWidth, canvasHeight);
+				
+				var terrainMap = generateMap(game); 
 			});
 		</script>
     </head>
